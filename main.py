@@ -2,13 +2,20 @@ import pandas as pd
 import numpy as np
 from Open_data import load_data
 import matplotlib.pyplot as plt
-from Laplacian import Laplacian_matrix
-from Eigen_Methods import EigenMethods
-from Clustering import Clusters
+from Laplacian import Laplacian
+from EigenMethods import EigenMethods
+from SpectralClustering import SpectralClustering
 from Other_Clustering_Methods import OtherMethods
+from Visualize import Visualize
 
+data = pd.read_csv("Datasets\\Circle.csv")
+visual = Visualize()
+#visual.player(data, 10)
+visual.decide(data)
+
+"""
 def main():
-    player = 'on'
+    player = 'off'
     decide= 'on'
 
     ## Load dataset
@@ -42,10 +49,10 @@ def main():
 
     if decide == 'on':
         print()
-        k= int(input('Give value (k) of the neighbor to use: '))
+        k = int(input('Give value (k) of the neighbor to use: '))
         print()
     else:
-        k=10
+        k=20
 
     laplace= Laplacian_matrix(dataset)
     L,W,D= laplace.LWD(k,sparse_cond=True)
@@ -109,7 +116,7 @@ def main():
             decided_M = 3
 
     else:
-        decided_M= 3
+        decided_M = 3
     
     defl_compute_eigenvectors= False    #Set True if you want deflaction eigenvectors
     small_eigenvalues,small_eigenvectors= eigen.shifting_small_method(L,decided_M)
@@ -121,7 +128,8 @@ def main():
     elif defl_compute_eigenvectors == True:
         clustering= Clusters(small_eigenvectors_defl,small_eigenvectors_defl,decided_M,dataset)
     
-    U= clustering.rotation_matrix()
+    U = clustering.rotation_matrix()
+    print(U.shape)
     if nome_dataset == 'circle':
         clusters= clustering.clusters_plot(U,nome_dataset)
     elif nome_dataset == 'spiral':
@@ -136,3 +144,4 @@ def main():
 
 
 main()
+"""

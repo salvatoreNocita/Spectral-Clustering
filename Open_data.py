@@ -12,11 +12,11 @@ class load_data():
     
     def open_data(self):
         if self.name_data == 'circle':
-            dataset= pd.read_csv('Datasets/Circle.csv', names=['x1','x2'])
+            dataset= pd.read_csv('Datasets/Circle.csv')
             print(dataset)
             return dataset, None
         elif self.name_data == 'spiral':
-            dataset= pd.read_csv('Datasets/Spiral.csv', names=['x1','x2','labels'])
+            dataset= pd.read_csv('Datasets/Spiral.csv')
             labels= dataset['labels'].values
             data= dataset.copy().drop(columns=['labels'])
             print(data)
