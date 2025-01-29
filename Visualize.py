@@ -7,7 +7,8 @@ from SpectralClustering import SpectralClustering
 import pandas as pd
 from matplotlib import cm
 from matplotlib.lines import Line2D
-from sklearn.cluster import KMeans, DBSCAN, SpectralClustering
+from sklearn.cluster import KMeans, DBSCAN
+from sklearn.cluster import SpectralClustering as sklearn_
 from sklearn.metrics.pairwise import euclidean_distances
 
 class Visualize():
@@ -65,13 +66,13 @@ class Visualize():
         if k_means:
             kmeans20 = KMeans(n_clusters = self.n_clusters)
             k_means_clusters = kmeans20.fit_predict(self.data)
-            self.scatter(self.data, k_means_clusters, title = f"KMeans Clusters, k : {self.k}")
+            self.scatter(self.data, k_means_clusters, title = f"KMeans Clusters, n : {self.n_clusters}")
         if dbscan:
             if self.interactive:
                 distances =  np.sort(euclidean_distances(self.data), axis = 1)
                 self.plot_line(np.sort(distances[:, self.k]), title = f"{self.k}-th neighbor distance")
                 eps = int(input("Choose an eps for DBSCAN: "))
-                dbscan = DBSCAN(eps = eps, min_samples = self.k)
+                
             else:
                 if self.k == 10:
                     eps = 0.75
@@ -82,15 +83,15 @@ class Visualize():
                 else:
                     raise RuntimeError(f"You should pass to interactive mode for k : {self.k}")
                 
-            dbscan_clusters = dbscan.fit_predict(self.data)
+            dbscan_ = DBSCAN(eps = eps, min_samples = self.k)
+            dbscan_clusters = dbscan_.fit_predict(self.data)
             self.scatter(self.data, dbscan_clusters, title = f"DBSCAN Clusters eps : {eps}, thresh : {self.k}")
         if sklearn:
-            sklearn = SpectralClustering(n_clusters = self.n_clusters)
-            sklearn_clusters = sklearn.fit_predict(self.data)
-            self.scatter(self.data, sklearn_clusters, title = f"Sklearn's Spectral Clustering, k : {self.k}")
+            sk = sklearn_(n_clusters = self.n_clusters)
+            sklearn_clusters = sk.fit_predict(self.data)
+            self.scatter(self.data, sklearn_clusters, title = f"Sklearn's Spectral Clustering, n : {self.n_clusters}")
                 
                 
-    
     def scatter(self, data, clusters = None, labels = None, title = "Cluster/Label Plot"):
         cmap = cm.Set1.colors
         if isinstance(clusters, np.ndarray):
