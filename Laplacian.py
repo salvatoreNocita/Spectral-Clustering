@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import euclidean_distances
 from scipy.sparse import csr_matrix
+from EigenMethods import EigenMethods
 
 class Laplacian(object):
     """This clas creates Laplacian Matrix, and return Weighted matrix and Degree matrix
@@ -12,12 +13,18 @@ class Laplacian(object):
     def __init__(self, similarity: str= 'exp',sigma: int= 1):
         self.similarity= similarity
         self.sigma= sigma
+        self.eigen = EigenMethods(eigenval_method = "shifting", eigenvec_method = "shifting")
     
     def LWD(self, X : np.ndarray, nearest_neighbors: int, sparse_cond: bool = True):
-        """Create and return L,D,W
+        """
+        Create and return L,D,W
             Input_arguments:
-          - Nearest Neighborhood = measure of how big the neighbor must to be
+          - Nearest Neighborhood = number of nearest neighbors
           - Sparse_cond = Bool to make sparse matrices (Default = True)
+          Return:
+          L : Laplacian Matrix
+          W : Weighted Matrix
+          D : Degree Matrix
           """
         W = self._weighted_matrix(X, nearest_neighbors)
         D = self._degree_matrix(W)
@@ -28,7 +35,35 @@ class Laplacian(object):
         
         L = D - W
         
-        return L,W,D 
+        return L,W,D
+    
+    def norm_LWD(self, X : np.ndarray, nearest_neighbors: int, sparse_cond: bool = True):
+            """
+            Create and return L normalized,D,W
+            Input_arguments:
+            - Nearest Neighborhood = number of nearest neighbors
+            - Sparse_cond = Bool to make sparse matrices (Default = True)
+            Return:
+            L_norm : Normalized Laplacian Matrix
+            W : Weighted Matrix
+            D : Degree Matrix 
+            """
+            n = X.shape[0]
+            W = self._weighted_matrix(X, nearest_neighbors)
+            D = self._degree_matrix(W)
+            
+            D_eigenval, D_eigenvec = np.linalg.eigh(D)
+            diag = np.diag(1 / np.sqrt(D_eigenval))
+            D_neg_half = D_eigenvec @ diag @ D_eigenvec.T
+            
+            L_norm = np.eye(n) - D_neg_half @ W @ D_neg_half
+
+            if sparse_cond == True:
+                W = self._make_sparse(W)
+                D = self._make_sparse(D)
+
+            return L_norm,W,D
+
 
     def _weighted_matrix(self, X : np.ndarray, k : int):
         """Create first  weighted graph and next weighted matrix, using similarity matrix computed by

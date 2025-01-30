@@ -87,8 +87,7 @@ class EigenMethods(object):
     
         return np.array(eigenvalues), np.array(eigenvectors).T
 
-
-    def deflation_inverse_power_method(self,A,M=4,mu=0,tol=1e-8,max_iter=1000, compute_eigenvectors= 'off'):
+    def deflation_inverse_power_method(self,A,M=4,mu=0,tol=1e-8, compute_eigenvectors= 'off'):
         n= A.shape[0]
         e1= np.zeros(n).T
         e1[0]= 1
@@ -109,12 +108,15 @@ class EigenMethods(object):
                 B_bar_i= P_bar_i @ Actual_A @ P_bar_i
                 Actual_A= B_bar_i[1:,1:]
                 P[i,i]= min_lamda_i
-            return np.array(eigenvalues), None
+            return np.array(eigenvalues),None
         else:
             for i in range(M):
                 if i == 0:
                     try:
                         min_eigenvalue_i, x_i= self.inverse_power_method(A, mu=0)
+                        if min_eigenvalue_i == None:
+                            print(f'Inverse power method do not converge')
+                            break
                     except np.linalg.LinAlgError:
                         min_eigenvalue_i, x_i= self.inverse_power_method(A, mu=1e-6)
                     eigenvalues.append(min_eigenvalue_i)
@@ -133,6 +135,11 @@ class EigenMethods(object):
                     except np.linalg.LinAlgError:
                         min_eigenvalue_i,x_i= self.inverse_power_method(Actual_A, mu=1e-6)
                     eigenvalues.append(min_eigenvalue_i)
+                    #if min_eigenvalue_i < tol or np.isclose(min_eigenvalue_i,[eigenvalues[i] for i in range(len(eigenvalues))], atol= tol).any() == True:
+                        #_, shift_eigenvector = self.shifting_small_method(A,i)
+                        #Actual_vector = shift_eigenvector.T[i-1,:]
+                        #eigenvectors.append(Actual_vector)
+                        #continue
                     E[i,i]= min_eigenvalue_i
                     P_bar_i= np.eye(n-i) - 2* (np.outer(x_i + e1[:n-i],x_i + e1[:n-i])/(np.linalg.norm(x_i + e1[:n-i])**2))
                     B_bar_i= P_bar_i @ Actual_A @ P_bar_i
@@ -158,7 +165,7 @@ class EigenMethods(object):
                     for matrice in P_prec:
                         MatrixP= MatrixP @ matrice                                                                      #Matrix to solve the linear system
                     eigenvector_A= MatrixP @ Actual_vector.T
-                    eigenvectors.append(eigenvector_A)
+                    eigenvectors.append(eigenvector_A.flatten())
                     B_prec= B_i
                     P_prec.append(P_i)
-            return eigenvalues,eigenvectors
+            return np.array(eigenvalues),np.array(eigenvectors).T

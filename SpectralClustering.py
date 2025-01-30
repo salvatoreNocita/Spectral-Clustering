@@ -13,8 +13,9 @@ class SpectralClustering(object):
         - M: number of clusters decided
         - dataset: dataset used
      """
-    def __init__(self, n_nearest : int = 10, similarity : str = "exp", sparse : bool= True):
+    def __init__(self, n_nearest, dataset_name, similarity : str = "exp", sparse : bool= True):
         self.laplacian = Laplacian(similarity, sigma = 1)
+        self.dataset_name = dataset_name
         self.eigen = EigenMethods(eigenval_method = "shifting", eigenvec_method = "shifting")
         self.n_nearest = n_nearest
         self.sparse = sparse
@@ -31,15 +32,31 @@ class SpectralClustering(object):
         if player_mode:
             return U, self.KMeans(U, M), eigenval
         return self.KMeans(U, M)
+    
+    def norm_fit_predict(self, X, player_mode = False):
+        try:
+            X = X.values
+        except:
+            X = X
+        L_norm,W,D = self.laplacian.norm_LWD(X, self.n_nearest, sparse_cond = self.sparse)
+        M = self.select_M()
+        eigenval, eigenvec = self.eigen.eigencompute(L_norm,5)
+        U = self.rotation_matrix(eigenval, eigenvec, M)
+        if player_mode:
+            return U, self.KMeans(U, M), eigenval
+        return self.KMeans(U, M)
 
     def select_M(self):
-        match self.n_nearest:
-            case 10:
-                return 3
-            case 20:
-                return 3
-            case 40:
-                return 2
+        if self.dataset_name == "Circle.csv":
+            match self.n_nearest:
+                case 10:
+                    return 3
+                case 20:
+                    return 3
+                case 40:
+                    return 2
+        elif self.dataset_name == "Spiral.csv":
+            return 3
         raise RuntimeError("Algorithm cannot manage this case")
     
     def rotation_matrix(self, eigenvalues, eigenvectors, M):

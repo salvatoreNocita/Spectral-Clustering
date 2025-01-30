@@ -12,9 +12,10 @@ from sklearn.cluster import SpectralClustering as sklearn_
 from sklearn.metrics.pairwise import euclidean_distances
 
 class Visualize():
-    def __init__(self, k, interactive):
+    def __init__(self, k, interactive, dataset_name):
         self.interactive = interactive
         self.k = k
+        self.dataset_name = dataset_name
         self.data = None
         self.n_clusters = None
 
@@ -35,32 +36,59 @@ class Visualize():
         eigen = EigenMethods(eigenval_method, eigenvec_method)
         eigenval, eigenvec = eigen.eigencompute(L, 5)
 
-        self.plot_line(eigenval, title = "Eigenvalues")
+        self.plot_line(eigenval, title = "Laplacian Eigenvalues")
 
         M = int(input('Insert number of clusters: '))
 
-        spect_cls = SpectralClustering(n_nearest = self.k)
+        self.n_clusters = M
+        spect_cls = SpectralClustering(n_nearest = self.k, dataset_name = self.dataset_name)
         U = spect_cls.rotation_matrix(eigenval, eigenvec, M = M)
         self.scatter(U, title = "Projected Data")
 
         clusters = spect_cls.KMeans(U, M)
 
         self.scatter(data, clusters, labels, title = "Clustered Data")
+
+        eigen.eigenval_meth = "shifting"
+        eigen.eigenvec_meth = "shifting"
+
+        L_norm, W, D = laplace.norm_LWD(data, self.k, sparse_cond = True)
+
+        eigenval_norm, eigenvec_norm = eigen.eigencompute(L_norm, 5)
+        U_norm = spect_cls.rotation_matrix(eigenval_norm, eigenvec_norm, M = M)
+        clusters_norm = spect_cls.KMeans(U_norm, M)
+
+        self.plot_line(eigenval_norm, title = "Normalized Laplacian Eigenvalues")
+        self.scatter(U_norm, title = "Normalized Laplacian - Projected Data")
+        self.scatter(data, clusters_norm, labels, title = "Normalized Laplacian - Clustered Data")
+
+
     
     def player(self, data, labels = None):
         try:
             data = data.values
+            labels = labels.values
         except:
             data = data
+            labels = labels
         
         self.data = data
         self.scatter(data, title = "Original Data")
-        spect_cls = SpectralClustering(n_nearest = self.k)
+
+        spect_cls = SpectralClustering(n_nearest = self.k, dataset_name = self.dataset_name)
         U, clusters, eigenval = spect_cls.fit_predict(data, player_mode = True)
         self.n_clusters = np.unique(clusters).size
-        self.plot_line(eigenval, title = "Eigenvalues")
+
+        self.plot_line(eigenval, title = "Laplacian Eigenvalues")
         self.scatter(U, title = "Projected Data")
         self.scatter(data, clusters, labels, title = "Clustered Data")
+
+        U_norm, clusters_norm, eigenval_norm = spect_cls.norm_fit_predict(data, player_mode = True)
+
+        self.plot_line(eigenval_norm, title = "Normalized Laplacian Eigenvalues")
+        self.scatter(U_norm, title = "Normalized Laplacian - Projected Data")
+        self.scatter(data, clusters_norm, labels, title = "Normalized Laplacian - Clustered Data")
+
     
     def other(self, k_means, dbscan, sklearn):
         if k_means:
@@ -70,22 +98,24 @@ class Visualize():
         if dbscan:
             if self.interactive:
                 distances =  np.sort(euclidean_distances(self.data), axis = 1)
-                self.plot_line(np.sort(distances[:, self.k]), title = f"{self.k}-th neighbor distance")
-                eps = int(input("Choose an eps for DBSCAN: "))
+                if self.dataset_name == "Circle.csv":
+                    self.plot_line(np.sort(distances[:, 10]), title = "10-th neighbor distance", grid = False, ticks = False)
+                    min_samples = 10
+                elif self.dataset_name == "Spiral.csv":
+                    self.plot_line(np.sort(distances[:, 5]), title = "3-th neighbor distance", grid = False, ticks = False)
+                    min_samples = 5
+                eps = float(input("Choose an eps for DBSCAN: "))
                 
             else:
-                if self.k == 10:
+                if self.dataset_name == "Circle.csv":
+                    min_samples = 10
                     eps = 0.75
-                elif self.k == 20:
-                    eps = 1
-                elif self.k == 40:
-                    eps = 1.5
-                else:
-                    raise RuntimeError(f"You should pass to interactive mode for k : {self.k}")
-                
-            dbscan_ = DBSCAN(eps = eps, min_samples = self.k)
+                elif self.dataset_name == "Spiral.csv":
+                    min_samples = 5
+                    eps = 2    
+            dbscan_ = DBSCAN(eps = eps, min_samples = min_samples)
             dbscan_clusters = dbscan_.fit_predict(self.data)
-            self.scatter(self.data, dbscan_clusters, title = f"DBSCAN Clusters eps : {eps}, thresh : {self.k}")
+            self.scatter(self.data, dbscan_clusters, title = f"DBSCAN Clusters eps : {eps}, thresh : {min_samples}")
         if sklearn:
             sk = sklearn_(n_clusters = self.n_clusters)
             sklearn_clusters = sk.fit_predict(self.data)
@@ -123,7 +153,7 @@ class Visualize():
         
         plt.show()
         
-        if labels != None:
+        if isinstance(labels, np.ndarray):
             self.scatter(data, labels, title = "Labeled Data")
         
 
@@ -155,14 +185,16 @@ class Visualize():
                 print()
         return decided_eigenvalues_method, decided_eigenvectors_method
     
-    def plot_line(self, series, title = "Title"):
+    def plot_line(self, series, title = "Title", grid = True, ticks = True):
         plt.figure()
         plt.plot(np.arange(series.size) ,series)
-        plt.xticks(np.arange(series.size))
-        plt.yticks(series)
+        if ticks:
+            plt.xticks(np.arange(series.size))
+            plt.yticks(series)
         plt.title(title)
         plt.tight_layout()
-        plt.grid()
+        if grid:
+            plt.grid()
         plt.show()
     
     """
