@@ -117,7 +117,7 @@ class Visualize():
             dbscan_clusters = dbscan_.fit_predict(self.data)
             self.scatter(self.data, dbscan_clusters, title = f"DBSCAN Clusters eps : {eps}, thresh : {min_samples}")
         if sklearn:
-            sk = sklearn_(n_clusters = self.n_clusters)
+            sk = sklearn_(n_clusters = self.n_clusters, affinity= 'nearest_neighbors')
             sklearn_clusters = sk.fit_predict(self.data)
             self.scatter(self.data, sklearn_clusters, title = f"Sklearn's Spectral Clustering, n : {self.n_clusters}")
                 

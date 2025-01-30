@@ -2,22 +2,22 @@ import pandas as pd
 from Visualize import Visualize
 
 interactive = False
-k = 40
-dataset = "Spiral.csv"
+k = 10
+dataset = "Circle.csv"
 
 other_kmeans = True
 other_dbscan = True
 other_sklearn = True
 
 if dataset == "Circle.csv":
-    data = pd.read_csv("Datasets\\Circle.csv")
+    data = pd.read_csv("Datasets/Circle.csv")
     labels = None
 elif dataset == "Spiral.csv":
-    spiral = pd.read_csv("Datasets\\Spiral.csv")
+    spiral = pd.read_csv("Datasets/Spiral.csv")
     data = spiral.iloc[:, :2]
     labels = spiral.iloc[:, 2]
 elif dataset == "Chameleon.csv":
-    data = pd.read_csv("Datasets\\Chameleon.csv")
+    data = pd.read_csv("Datasets/Chameleon.csv")
     labels = None
 
 visual = Visualize(k, interactive, dataset)
