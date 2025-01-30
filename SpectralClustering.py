@@ -57,6 +57,8 @@ class SpectralClustering(object):
                     return 2
         elif self.dataset_name == "Spiral.csv":
             return 3
+        elif self.dataset_name == "3D_Dataset.csv":
+            return 4
         raise RuntimeError("Algorithm cannot manage this case")
     
     def rotation_matrix(self, eigenvalues, eigenvectors, M):

@@ -1,4 +1,3 @@
-from Open_data import load_data
 import matplotlib.pyplot as plt
 import numpy as np
 from Laplacian import Laplacian
@@ -104,15 +103,21 @@ class Visualize():
                 elif self.dataset_name == "Spiral.csv":
                     self.plot_line(np.sort(distances[:, 5]), title = "3-th neighbor distance", grid = False, ticks = False)
                     min_samples = 5
-                eps = float(input("Choose an eps for DBSCAN: "))
-                
+                elif self.dataset_name == "3D_Dataset.csv":
+                    self.plot_line(np.sort(distances[:,13]), title = '13-th neighbor distance', grid = False, ticks= False)
+                    min_samples = 10
+                eps = float(input("Choose an eps for DBSCAN: "))    
             else:
                 if self.dataset_name == "Circle.csv":
                     min_samples = 10
                     eps = 0.75
                 elif self.dataset_name == "Spiral.csv":
                     min_samples = 5
-                    eps = 2    
+                    eps = 2
+                elif self.dataset_name == "3D_Dataset.csv":
+                    min_samples = 3
+                    eps = 2.25
+
             dbscan_ = DBSCAN(eps = eps, min_samples = min_samples)
             dbscan_clusters = dbscan_.fit_predict(self.data)
             self.scatter(self.data, dbscan_clusters, title = f"DBSCAN Clusters eps : {eps}, thresh : {min_samples}")
