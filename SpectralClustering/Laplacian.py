@@ -2,10 +2,10 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import euclidean_distances
 from scipy.sparse import csr_matrix
-from EigenMethods import EigenMethods
+from SpectralClustering.EigenMethods import EigenMethods
 
 class Laplacian(object):
-    """This clas creates Laplacian Matrix, and return Weighted matrix and Degree matrix
+    """This class creates Laplacian Matrix, and return Weighted matrix and Degree matrix
         Input_arguments:
         - dataset = data for which want to create Laplacian matrix
         - similarity= type of similarity function that want to use to create similarity matrix

@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.cluster import KMeans
 from matplotlib import cm
-from Laplacian import Laplacian
-from EigenMethods import EigenMethods
+from SpectralClustering.Laplacian import Laplacian
+from SpectralClustering.EigenMethods import EigenMethods
 
 class SpectralClustering(object):
     """This class perfoms clustering and scatterplot them

@@ -1,8 +1,8 @@
 import pandas as pd
-from Visualize import Visualize
+from SpectralClustering.Visualize import Visualize
 
 interactive = False
-k = 5
+k = 10
 dataset = "Circle.csv"
 
 other_kmeans = True
