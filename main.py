@@ -3,7 +3,7 @@ from Visualize import Visualize
 
 interactive = False
 k = 5
-dataset = "3D_Dataset.csv"
+dataset = "Circle.csv"
 
 other_kmeans = True
 other_dbscan = True
